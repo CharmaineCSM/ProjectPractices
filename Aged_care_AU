@@ -1,0 +1,77 @@
+--Data download from https://www.gen-agedcaredata.gov.au/
+--Data imported into Microsoft SQL Server Management Studio
+--This project is done using SQL to query on the dataset to simpler tables and then exported to excel to create graphs for visualisation purposes
+
+
+MICROSOFT SQL SERVER
+
+SELECT * 
+FROM Population
+
+--population by year 
+SELECT Year, ROUND(SUM([Total persons]), 2) as Total_population
+FROM Population
+GROUP by Year
+ORDER BY Year
+
+--old age population
+SELECT Year, ROUND(SUM([85 and over]),2) AS over_85, ROUND(SUM([80-84]),2) as a80_84, ROUND(SUM([75-79]),2) as b75_79,
+	ROUND(SUM([70-74]),2) as c70_74, ROUND(SUM([65-69]),2) as d65_69
+FROM Population
+--Where Year between 2020 and 2021
+GROUP by Year
+ORDER BY Year
+
+--alphabets are added infront of the renamed columns as the server did not handle numbers as column names well. 
+
+Now looking at the admissions data
+
+**ADMISSIONS 20-21
+SELECT Year, State, Care_type, Admission_type, First_admission, Age_group, Sex
+FROM Admissions
+
+--Total first admissions by state and age group
+/*SELECT State, Age_group, COUNT(Age_group) as Total
+FROM Admissions
+WHERE First_admission = 'Yes'
+GROUP BY State, Age_group
+ORDER BY Age_group
+
+SELECT State, Age_group, COUNT(Age_group) as Total
+FROM Admissions
+WHERE First_admission = 'No'
+GROUP BY State, Age_group
+ORDER BY Age_group*/
+
+--I want to look at an overview for the whole AU, hence I decided to exclude the state segregation for easier data visualisation
+SELECT Year, Admission_type, First_admission, Age_group, COUNT(Sex) as Total_admissions
+FROM Admissions
+--WHERE First_admission='Yes'
+GROUP BY Year, Admission_type, First_admission, Age_group
+ORDER BY Age_group
+
+**People using aged care from 2019 to 2020
+SELECT *
+FROM using_aged_care_2019
+
+/*
+SELECT YEAR, STATE, AGE_GROUP, CARE_TYPE, COUNT(count) as Total_people_using_age_care
+FROM using_aged_care_2019
+GROUP BY YEAR, STATE, AGE_GROUP, CARE_TYPE
+ORDER BY YEAR, AGE_GROUP*/
+
+--omit state
+SELECT YEAR, AGE_GROUP, CARE_TYPE, COUNT(count) as Total_people_using_age_care
+FROM using_aged_care_2019
+GROUP BY YEAR, AGE_GROUP, CARE_TYPE
+ORDER BY YEAR, AGE_GROUP
+
+SELECT YEAR, AGE_GROUP, CARE_TYPE, COUNT(Sex) as Total_people_using_age_care
+FROM using_aged_care_2020
+GROUP BY YEAR, AGE_GROUP, CARE_TYPE
+ORDER BY YEAR, AGE_GROUP
+
+SELECT YEAR, AGE_GROUP, CARE_TYPE, COUNT(Sex) as Total_people_using_age_care
+FROM using_aged_care_2021
+GROUP BY YEAR, AGE_GROUP, CARE_TYPE
+ORDER BY YEAR, AGE_GROUP
